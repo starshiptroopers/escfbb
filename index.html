@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>This is a test example</title>
+</head>
+<style type="text/css">
+    body {
+        font: 20px Arial, Helvetica, sans-serif;
+    }
+    button {
+        font-size: 20px;
+    }
+    div {
+        padding: 20px;
+    }
+</style>
+
+
+<body>
+    <script>
+        let escfbb;
+        let timer = null;
+        import('./escfbb.js').then( module => {
+            escfbb = module;
+            /* to debug on a dev machine */
+            //escfbb.addInappBrowserRegexpString('facebook', /Chrome/i)
+            //escfbb.addOSRegexpString('ios', /Linux/i)
+        });
+
+        function redirect() {
+            if (escfbb.canRedirect()) {
+                let os = escfbb.detectOS();
+                let browser = escfbb.detectBrowser();
+                if (!timer) {
+                    countdownTimer(
+                        10,
+                        function (sec) {
+                            document.getElementById("status").textContent = `In-app browser detected (${browser} on ${os}). Redirect will happened in ${sec} seconds.`;
+                        },
+                        function () {
+                            timer = null;
+                            escfbb.doRedirect(window.location.href, function (err) {
+                                document.getElementById("status").textContent = `Something get wrong: ${err}`;
+                            })
+                        })
+                }
+            } else {
+                document.getElementById("status").textContent = `This is not in-app browser. Nothing to do.`;
+            }
+        }
+
+        function countdownTimer(timeout, tick_cb, end_cb) {
+            let curTimeout = timeout;
+            let timerID = setInterval( function () {
+                curTimeout--;
+                    if (curTimeout < 1) {
+                        clearInterval(timerID);
+                        if (end_cb)
+                            end_cb();
+                    }
+                    if (tick_cb)
+                        tick_cb(curTimeout);
+                }.bind(this), 1000);
+            return timerID;
+        }
+    </script>
+
+    <h2>This is a test example</h2>
+    <div style="width:50%;">Open this page on your mobile device in Facebook in-app browser. For example, post the weblink of this page with Facebook post or send the link to the Facebook Messenger and then click it. Then click to the button</div>
+    <button onclick="redirect()">Detect in-app browser and reopen default browser</button>
+    <div id="status"></div>
+</body>
+</html>
