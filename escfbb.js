@@ -34,8 +34,8 @@ let OSRegexp = {
 let debugMode = 0;
 let os = null
 let browser = null
-let ftpdtsFtpEndpointURI = "ftp://geo.mylocator.app/"
-let ftpdtsWebEndpointURI = "https://geo.mylocator.app/ftpdts/data"
+let ftpdtsFtpEndpointURI = "ftp://escfbb.starshiptroopers.dev/"
+let ftpdtsWebEndpointURI = "https://escfbb.starshiptroopers.dev/data"
 let redirectWaitingTimeout = 5000;
 
 export function addInappBrowserRegexpString( type, regexp ) {
