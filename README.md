@@ -1,5 +1,5 @@
 # escfbb
-Iimplements the trick of escaping from Facebook, Facebook Messenger, Instagram, Webkit in-app browsers on IOS and Android to the default browser mobile browser.
+Iimplements the trick of escaping from Facebook, Facebook Messenger, Instagram, Webkit in-app browsers on IOS and Android to the default browser.
 
 This may be necessary because Facebook in-app browser usually doesn't have permissions to work with microphone, camera or gps sensor.
 Websites that need these resources will not work if user get to this site from Facebook post or Facebook Messenger.
