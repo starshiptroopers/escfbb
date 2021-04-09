@@ -57,7 +57,7 @@ export function isInappBrowser() {
  * check and returns true if we are in the in-app browser we need to escape from
  * @returns {boolean|boolean}
  */
-export function canRedirect() {
+export function canEscape() {
     return detectBrowser() != null && detectOS != null
 }
 
