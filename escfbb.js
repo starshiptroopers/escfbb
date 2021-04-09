@@ -1,79 +1,72 @@
 /*
-// Copyright 2020 The Starship Troopers Authors. All rights reserved.
+// Copyright 2021 The Starship Troopers Authors. All rights reserved.
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 //
 // This script implements the trick of escaping from Facebook, Facebook Messenger, Instagram, Webkit in-app browsers on IOS and Android to the default browser mobile browser.
 // This may be necessary because Facebook in-app browser usually doesn't have permissions to work with microphone, camera or gps sensor.
-// Websites that need these resources will not work if user get to this site from Facebook post or Message
+// Websites and PWA that need these resources will not work if user get to this site from Facebook post or Message
 //
 
 // Usage: see index.html as the example
 // Notes.
-// If the solution for android is quite simple, the same for iOS is much more complicated.
-// We need to use an external service to do the redirect. FTP is used to jump out to safari, because at the time of writing I didn't know another solution. There is no API in WebKit to call safari.
+// The solution for android is quite simple, but the same for iOS is much more complicated.
+// We need to use an external service to do the redirect on IOS.
+// Downloading the file from an intermediate ftp-server is used to jump out from in-app browser, this is a trick because there is no public API in IOS and WebKit to call safari
+// and at the time of writing I didn't know another solution.
+// At the time of writing Google removed the ftp protocol support from Chrome browsers, if Safary follows it, this solution will stop working on iOS
+// let me know if you know of another way to call safary from a mobile browser on iOS
  */
 
-let UA = {
-    isFacebook: /(FB4A|FBAN)/i.test(window.navigator.userAgent),
-    isFacebookMessenger: /(FB_IAB\/Orca|FB_IAB\/Messenger|FBAN\/Messenger)/i.test(window.navigator.userAgent),
-    isIOS: /(iPhone|iPad)/i.test(window.navigator.userAgent),
-    isAndroid: /(Android)/i.test(window.navigator.userAgent)
-};
-
+//regexp arrays to detect in-app browsers
 let BrowsersRegexp = {
     facebook: [ /(FB4A|FBAN)/i ],
-    facebookMessenger: [/(FB_IAB\/Orca|FB_IAB\/Messenger|FBAN\/Messenger)/i],
+    facebookMessenger: [/(FB_IAB\/Orca|FB_IAB\/Messenger|FBAN\/Messenger)/i]
 }
 
+//regexp arrays to detect mobile OS
 let OSRegexp = {
     ios: [ /(iPhone|iPad)/i ],
-    android: [/(Android)/i],
+    android: [/(Android)/i]
 }
 
 let debugMode = 0;
-let os = null
-let browser = null
-let ftpdtsFtpEndpointURI = "ftp://escfbb.starshiptroopers.dev/"
-let ftpdtsWebEndpointURI = "https://escfbb.starshiptroopers.dev/data"
-let redirectWaitingTimeout = 5000;
+let os = null;
+let browser = null;
 
+//you can run your own ftpdts service (https://github.com/starshiptroopers/ftpdts) or use the the public and free ftpdts service on starshiptroopers.dev
+export let ftpdtsFtpEndpointURI = "ftp://starshiptroopers.dev/";              //ftpdts service ftp endpoint (public and free)
+export let ftpdtsWebEndpointURI = "https://starshiptroopers.dev/escfbb/data"; //ftpdts service webapi endpoint (public and free)
+export let redirectWaitingTimeout = 5000;
+
+//register new regexp to in-app browser detector
 export function addInappBrowserRegexpString( type, regexp ) {
     return _addRegexpString(BrowsersRegexp, type, regexp)
 }
 
+//register new regexp to mobile os detector
 export function addOSRegexpString( os, regexp ) {
     return _addRegexpString(OSRegexp, os, regexp)
-}
-
-function _addRegexpString(storage, name, regexp) {
-    if (! storage || ! name || ! regexp) {
-        _loge("addRegexpString: wrong input parameters");
-        return false
-    }
-
-    if (!storage[name])
-        storage[name] = [];
-
-    storage[name].push(regexp)
-
-    return true;
 }
 
 export function isInappBrowser() {
     return (detectBrowser() != null);
 }
 
+/**
+ * check and returns true if we are in the in-app browser we need to escape from
+ * @returns {boolean|boolean}
+ */
 export function canRedirect() {
     return detectBrowser() != null && detectOS != null
 }
 
 /**
- *
- * @param url - url to redirect to
+ * Do escape from in-app browser.
+ * @param url - the url that will be opened in the default browser
  * @param failed_cb - callback when redirect failed
  */
-export function doRedirect(url, failed_cb) {
+export function escape(url, failed_cb) {
     if (!canRedirect())
         return;
     let os = detectOS();
@@ -124,14 +117,34 @@ export function detectOS() {
     return os || (os = _detectUA(OSRegexp))
 }
 
-export function debug(v) {
-    debugMode = v;
-}
-
 export function detectBrowser() {
     return browser || (browser =_detectUA(BrowsersRegexp))
 }
 
+//turn on the debug logging to the console
+export function debug(v) {
+    debugMode = v;
+}
+
+/*
+   Internal functions
+ */
+
+function _addRegexpString(storage, name, regexp) {
+    if (! storage || ! name || ! regexp) {
+        _loge("addRegexpString: wrong input parameters");
+        return false
+    }
+
+    if (!storage[name])
+        storage[name] = [];
+
+    storage[name].push(regexp)
+
+    return true;
+}
+
+// test userAgent string with array of regexp
 function _detectUA(regexps) {
     try {
         for (let entry of Object.entries(regexps)) {
@@ -159,7 +172,7 @@ function _log(m) {
 }
 
 /**
- *
+ * do the remote API request
  * @param uri
  * @param method - (POST|GET)
  * @param data   - (data to sent)
