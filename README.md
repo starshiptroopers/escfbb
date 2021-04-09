@@ -17,7 +17,7 @@ https://starshiptroopers.dev/escfbb/
 
 #### Notes
 
-At the time of writing Google removed the ftp protocol support from Chrome browser, if Safary follows it, this solution will stop working on iOS.
+At the time of writing Google removed the ftp protocol support from Chrome browser and if Safary follows it this solution will stop working on iOS.
 Let me know if you know of another way to call safary from a mobile browser on iOS.
 
 This script use our own ftpdts service written in GO as intermediate ftp server. 
