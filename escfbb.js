@@ -67,7 +67,7 @@ export function canEscape() {
  * @param failed_cb - callback when redirect failed
  */
 export function escape(url, failed_cb) {
-    if (!canRedirect())
+    if (!canEscape())
         return;
     let os = detectOS();
     let b = detectBrowser();
