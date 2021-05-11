@@ -64,9 +64,10 @@ export function canEscape() {
 /**
  * Do escape from in-app browser.
  * @param url - the url that will be opened in the default browser
+ * @param success_cb - callback when redirect is done
  * @param failed_cb - callback when redirect failed
  */
-export function escape(url, failed_cb) {
+export function escape(url, success_cb, failed_cb) {
     if (!canEscape())
         return;
     let os = detectOS();
@@ -80,7 +81,8 @@ export function escape(url, failed_cb) {
 
     let waitTimer = function () {
         setTimeout(function(){
-            failed("redirect failed");
+            if (typeof success_cb === "function")
+                success_cb();
         }, redirectWaitingTimeout);
     }
 

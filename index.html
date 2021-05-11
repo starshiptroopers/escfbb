@@ -39,7 +39,7 @@
                         },
                         function () {
                             timer = null;
-                            escfbb.escape(window.location.href, function (err) {
+                            escfbb.escape(window.location.href, null, function (err) {
                                 log(`Something get wrong: ${err}`);
                             })
                         })
